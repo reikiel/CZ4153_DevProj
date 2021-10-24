@@ -1,8 +1,22 @@
 import React, { Component } from "react";
 import AccountsContract from "./contracts/Accounts.json";
 import getWeb3 from "./getWeb3";
+import Login from "./components/Login";
+import IdeasDashboardPage from "./components/IdeasDashboardPage";
+import NewIdeaPage from "./components/NewIdeaPage";
 
-import "./App.css";
+import CssBaseline from "@mui/material/CssBaseline";
+import AuthenticatedRoute from "./utils/AuthenticatedRoute";
+import { default as AccountStore } from "./stores/AccountStore";
+import {
+  IDEAS_ROUTE,
+  LOGIN_ROUTE,
+  ROOT_ROUTE,
+  NEW_IDEA_ROUTE,
+  MINT_ROUTE,
+} from "./constants/RouteConstants";
+import ThemeProvider from './theme/ThemeProvider';
+import MintPage from "./components/MintPage";
 
 class App extends Component {
     state = {
@@ -13,10 +27,8 @@ class App extends Component {
         accountName: null,
     };
 
-    componentDidMount = async () => {
-        try {
-            // Get network provider and web3 instance.
-            const web3 = await getWeb3();
+  // Stores a given value, 5 by default.
+  await contract.methods.set(5).send({ from: accounts[0] });
 
             // Use web3 to get the user's accounts.
             const accounts = await web3.eth.getAccounts();
@@ -30,20 +42,10 @@ class App extends Component {
                 deployedNetwork && deployedNetwork.address
             );
 
-            // Set web3, accounts, and contract to the state, and then proceed with an
-            // example of interacting with the contract's methods.
-            this.setState(
-                { web3, accounts, contract: instance },
-                this.runExample
-            );
-        } catch (error) {
-            // Catch any errors for any of the above operations.
-            alert(
-                `Failed to load web3, accounts, or contract. Check console for details.`
-            );
-            console.error(error);
-        }
-    };
+const connectToWeb3 = async (state, setState) => {
+  try {
+    // Get network provider and web3 instance.
+    const web3 = await getWeb3();
 
     // runExample = async () => {
     //     const { accounts, contract } = this.state;
