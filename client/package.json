@@ -12,6 +12,7 @@
     "@mui/lab": "^5.0.0-alpha.51",
     "@mui/material": "^5.0.4",
     "@mui/styles": "^5.0.1",
+    "@openzeppelin/contracts": "2.5.1",
     "@tabler/icons": "^1.41.2",
     "date-fns": "^2.25.0",
     "material-ui": "^0.20.2",

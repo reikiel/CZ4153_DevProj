@@ -1,37 +1,51 @@
 import React, { useState } from "react";
-import { useHistory, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 
-import { IsLoggedIn, TryLogIn } from "../utils/AuthenticationService";
+import { TryLogIn } from "../utils/AuthenticationService";
 import { default as AccountStore } from "../stores/AccountStore";
+import { default as ContractStore } from "../stores/ContractStore";
 import { IDEAS_ROUTE } from "../constants/RouteConstants";
+import { ADDRESS } from "../constants/AccountConstants";
+import {
+  LOGIN_AWAITING_USER,
+  LOGIN_INIT,
+  LOGIN_SUCCESSFUL,
+} from "../constants/LoginStatusConstants";
 
 export default function Login() {
   const accountStore = AccountStore.useStore();
-  const routeHistory = useHistory();
-  const [isFailedLogin, setFailedLogin] = useState(false);
-  const [address, setAddress] = useState("");
+  const contractStore = ContractStore.useStore();
+  const [loginState, setLoginState] = useState(
+    accountStore.get(ADDRESS) ? LOGIN_SUCCESSFUL : LOGIN_INIT
+  );
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const hasSuccessfullyLoggedIn = TryLogIn(accountStore, address);
-
-    if (hasSuccessfullyLoggedIn) {
-      routeHistory.push(IDEAS_ROUTE);
-    } else {
-      setFailedLogin(true);
-    }
+    TryLogIn(accountStore, contractStore, setLoginState)
+      .then((response) => {
+        setLoginState(LOGIN_SUCCESSFUL);
+      })
+      .catch((error) => console.log(error));
   };
 
-  if (IsLoggedIn(accountStore)) {
+  const ButtonMessage = () => {
+    if (loginState === LOGIN_INIT) {
+      return "Connect to Wallet";
+    } else if (loginState === LOGIN_AWAITING_USER) {
+      return "Connecting...";
+    }
+    return "ERROR";
+  };
+
+  if (loginState === LOGIN_SUCCESSFUL) {
     return <Redirect to={IDEAS_ROUTE} />;
   }
 
@@ -63,26 +77,14 @@ export default function Login() {
               noValidate
               sx={{ mt: 1 }}
             >
-              <TextField
-                error={isFailedLogin}
-                margin="normal"
-                required
-                fullWidth
-                id="address"
-                label="Address"
-                name="address"
-                autoFocus
-                helperText={isFailedLogin ? "Invalid address." : ""}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-
               <Button
                 type="text"
                 fullWidth
                 variant="contained"
+                disabled={loginState === LOGIN_AWAITING_USER}
                 sx={{ mt: 3, mb: 2 }}
               >
-                Login
+                {ButtonMessage()}
               </Button>
             </Box>
           </Box>

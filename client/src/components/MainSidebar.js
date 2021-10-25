@@ -57,8 +57,6 @@ export default function MainSidebar({ children }) {
     currentSidebarIndex ?? 0
   );
 
-  const stylessLink = <Link style={{ textDecoration: "none" }} />;
-
   return (
     <Box sx={{ display: "flex", width: "100%" }}>
       <CssBaseline />

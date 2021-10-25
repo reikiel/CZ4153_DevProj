@@ -401,7 +401,7 @@ export const PureLightTheme = createTheme({
           }
         },
         '*': {
-          'scrollbar-width': 'thin',
+          'scrollbarWidth': 'thin',
         },
         '*::-webkit-scrollbar': {
           width: '0px',

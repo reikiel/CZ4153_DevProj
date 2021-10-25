@@ -84,9 +84,14 @@ export default function Mint() {
             ></Input>
           </Box>
           <Box>
-            <Button className={classes.buttonWidth} onClick={() => {
-              setMintVoteOngoing(true);
-            }}>Mint!</Button>
+            <Button
+              className={classes.buttonWidth}
+              onClick={() => {
+                setMintVoteOngoing(true);
+              }}
+            >
+              Mint!
+            </Button>
           </Box>
         </Box>
       )}

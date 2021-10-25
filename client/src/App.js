@@ -1,13 +1,15 @@
-import React, { Component } from "react";
-import AccountsContract from "./contracts/Accounts.json";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import getWeb3 from "./getWeb3";
 import Login from "./components/Login";
 import IdeasDashboardPage from "./components/IdeasDashboardPage";
 import NewIdeaPage from "./components/NewIdeaPage";
+import MintPage from "./components/MintPage";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import AuthenticatedRoute from "./utils/AuthenticatedRoute";
 import { default as AccountStore } from "./stores/AccountStore";
+import { default as ContractStore } from "./stores/ContractStore";
 import {
   IDEAS_ROUTE,
   LOGIN_ROUTE,
@@ -15,85 +17,109 @@ import {
   NEW_IDEA_ROUTE,
   MINT_ROUTE,
 } from "./constants/RouteConstants";
-import ThemeProvider from './theme/ThemeProvider';
-import MintPage from "./components/MintPage";
+import ThemeProvider from "./theme/ThemeProvider";
 
-class App extends Component {
-    state = {
-        web3: null,
-        accounts: null,
-        contract: null,
-        accountRole: null,
-        accountName: null,
-    };
+const runExample = async (state, setState) => {
+  const { accounts, contract, storageValue } = state;
 
   // Stores a given value, 5 by default.
   await contract.methods.set(5).send({ from: accounts[0] });
 
-            // Use web3 to get the user's accounts.
-            const accounts = await web3.eth.getAccounts();
-            console.log(typeof accounts[0]);
+  // Get the value from the contract to prove it worked.
+  const response = await contract.methods.get().call();
 
-            // Get the contract instance.
-            const networkId = await web3.eth.net.getId();
-            const deployedNetwork = AccountsContract.networks[networkId];
-            const instance = new web3.eth.Contract(
-                AccountsContract.abi,
-                deployedNetwork && deployedNetwork.address
-            );
+  // Update state with the result.
+  if (storageValue !== response) {
+    setState({ ...state, storageValue: response });
+  }
+};
 
 const connectToWeb3 = async (state, setState) => {
   try {
     // Get network provider and web3 instance.
     const web3 = await getWeb3();
 
-    // runExample = async () => {
-    //     const { accounts, contract } = this.state;
+    // Use web3 to get the user's accounts.
+    const accounts = await web3.eth.getAccounts();
 
-    //     // Stores a given value, 5 by default.
-    //     await contract.methods.set(5).send({ from: accounts[0] });
+    // Get the contract instance.
+    const networkId = await web3.eth.net.getId();
+    const instance = null;
 
-    //     // Get the value from the contract to prove it worked.
-    //     const response = await contract.methods.get().call();
+    // Set web3, accounts, and contract to the state, and then proceed with an
+    // example of interacting with the contract's methods.
+    setState({ ...state, web3, accounts: accounts, contract: instance });
+    console.log(state);
+  } catch (error) {
+    // Catch any errors for any of the above operations.
+    alert(
+      `Failed to load web3, accounts, or contract. Check console for details.`
+    );
+    console.error(error);
+  }
+};
 
-    //     // Update state with the result.
-    //     this.setState({ storageValue: response });
-    // };
+// TODO: Remove and add landing page
+const PlaceHolder = ({ valueParam }) => {
+  return (
+    <div className="App">
+      <h1>Good to Go!</h1>
+      <p>Your Truffle Box is installed and ready.</p>
+      <h2>Smart Contract Example</h2>
+      <p>
+        If your contracts compiled and migrated successfully, below will show a
+        stored value of 5 (by default).
+      </p>
+      <p>
+        Try changing the value stored on <strong>line 42</strong> of App.js.
+      </p>
+      <div>The stored value is: {valueParam}</div>
+    </div>
+  );
+};
 
-    runExample = async () => {
-        const { accounts, contract } = this.state;
+function App() {
+  const [state, setState] = useState({
+    storageValue: 0,
+    web3: null,
+    accounts: null,
+    contract: null,
+  });
 
-        // Get the value from the contract to prove it worked.
+  //connectToWeb3(state, setState);
+  //useEffect(() => {runExample(state, setState)}, [state]);
 
-        let accountRole = await contract.methods
-            .viewAccountRole(accounts[0])
-            .call();
-        let accountName = await contract.methods
-            .viewAccountName(accounts[0])
-            .call();
-
-        console.log(accountName, accountRole);
-
-        // Update state with the result.
-        this.setState({ accountRole: accountRole, accountName: accountName });
-    };
-
-    render() {
-        if (!this.state.web3) {
-            return <div>Loading Web3, accounts, and contract...</div>;
-        }
-        return (
-            <div className="App">
-                <h1>Good to Go!</h1>
-                <p>Your Truffle Box is installed and ready.</p>
-                <h2>Smart Contract Example</h2>
-
-                <div>The current address is: {this.state.accounts[0]}</div>
-                <div>Company name: {this.state.accountName}</div>
-                <div>Company role: {this.state.accountRole}</div>
-            </div>
-        );
-    }
+  //if (!state.web3) {
+  //    return <div>Loading Web3, accounts, and contract...</div>;
+  //}
+  return (
+    <ThemeProvider>
+      <CssBaseline />
+      <AccountStore.Container>
+        <ContractStore.Container>
+          <Router>
+            <Switch>
+              <Route path={LOGIN_ROUTE}>
+                <Login />
+              </Route>
+              <AuthenticatedRoute path={IDEAS_ROUTE}>
+                <IdeasDashboardPage />
+              </AuthenticatedRoute>
+              <AuthenticatedRoute path={NEW_IDEA_ROUTE}>
+                <NewIdeaPage />
+              </AuthenticatedRoute>
+              <AuthenticatedRoute path={MINT_ROUTE}>
+                <MintPage />
+              </AuthenticatedRoute>
+              <Route path={ROOT_ROUTE} component={PlaceHolder}>
+                <PlaceHolder valueParam={5} />
+              </Route>
+            </Switch>
+          </Router>
+        </ContractStore.Container>
+      </AccountStore.Container>
+    </ThemeProvider>
+  );
 }
 
 export default App;

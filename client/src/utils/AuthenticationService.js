@@ -1,9 +1,31 @@
-import { DRIVER, INVESTOR, PARTNER, USER } from "../constants/RoleConstants";
-import { IDEAS_ROUTE, MINT_ROUTE, NEW_IDEA_ROUTE } from "../constants/RouteConstants";
-import { ADDRESS, ACCOUNT_TYPE, NAME, TOKEN_COUNT } from "../constants/AccountConstants";
+import {
+  DRIVER,
+  PARTNER_INVESTOR,
+  INVESTOR,
+  PARTNER,
+  USER,
+} from "../constants/RoleConstants";
+import {
+  IDEAS_ROUTE,
+  MINT_ROUTE,
+  NEW_IDEA_ROUTE,
+} from "../constants/RouteConstants";
+import {
+  ADDRESS,
+  ACCOUNT_TYPE,
+  NAME,
+  TOKEN_COUNT,
+} from "../constants/AccountConstants";
 
-const ALL_ROLES = [DRIVER, INVESTOR, PARTNER, USER];
+import {
+  ConnectToWeb3,
+  GetAccountContract,
+  GetDGTContract,
+} from "./Web3Client";
 
+const ALL_ROLES = [DRIVER, PARTNER_INVESTOR, INVESTOR, PARTNER, USER];
+
+// Stores the map of routes with the corresponding permissions
 const ROUTE_TO_ROLES_WITH_ACCESS = {
   [IDEAS_ROUTE]: ALL_ROLES,
   [NEW_IDEA_ROUTE]: ALL_ROLES,
@@ -47,25 +69,33 @@ export const HasSpecialAccess = (accountStore, route) => {
  * Attempts to login for the user.
  * Returns whether the user has successfully logged in
  */
-export const TryLogIn = (accountStore, address) => {
+export const TryLogIn = async (accountStore, contractStore, setLoginState) => {
   // TODO: Add authentication checks + Get account info => web3
-  const accountDetails = {
-    [NAME]: address,
-    [ACCOUNT_TYPE]: ["a", "b", "c", "d", "e"].some((a) => a === address) ? DRIVER : USER,
-    [TOKEN_COUNT]: 500,
-  };
-  const isSuccessfullyAuthenticated = true; // add actual checks
+  ConnectToWeb3(accountStore, setLoginState);
 
-  if (!isSuccessfullyAuthenticated) {
-    return false;
+  // Successfully connected to metamusk, account address set.
+  // Query AddressContract to obtain more Account info
+  const address = accountStore.get(ADDRESS);
+  if (address !== null) {
+    console.log(address);
+    const accountContract = await GetAccountContract(contractStore);
+    const dgtContract = await GetDGTContract(contractStore);
+
+    const accountRole = await accountContract.methods
+      .viewAccountRole(address)
+      .call();
+    const accountName = await accountContract.methods
+      .viewAccountName(address)
+      .call();
+    const dgtTokenCount = await dgtContract.methods.balanceOf(address).call();
+
+    accountStore.set(ACCOUNT_TYPE)(accountRole);
+    accountStore.set(NAME)(accountName);
+    accountStore.set(TOKEN_COUNT)(dgtTokenCount);
+    return true;
   }
 
-  accountStore.set(ADDRESS)(address);
-  accountStore.set(NAME)(accountDetails[NAME]);
-  accountStore.set(ACCOUNT_TYPE)(accountDetails[ACCOUNT_TYPE]);
-  accountStore.set(TOKEN_COUNT)(accountDetails[TOKEN_COUNT] ?? 0);
-
-  return true;
+  return false;
 };
 
 export const LogOut = (accountStore) => {
@@ -75,4 +105,4 @@ export const LogOut = (accountStore) => {
   accountStore.set(NAME)(null);
   accountStore.set(ADDRESS)(null);
   accountStore.set(TOKEN_COUNT)(null);
-}
+};
