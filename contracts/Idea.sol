@@ -31,16 +31,19 @@ contract Ideas is DGT{
             }));
     }
     
-    function voteIdea(uint numVotes, uint id) public returns(bool result){ 
+    //frontend should receive two output from this function. 1st output: success of voting, 2nd ouput(optional!!up to jordan): whether idea is allowed for voting. if return true, frontend should enable voting button. 
+    function voteIdea(uint numVotes, uint id) public returns(bool vote_result, bool approveRejectIdea){ 
+        bool canAppOrRej = false;
         if (numVotes >= (msg.sender).balanceOf){
             ideas[id].voteCount += numVotes;
-            //ideas[id].voters.add(msg.sender);
+            canAppOrRej = checkvoteCountToSeeIfCanApproveRejectIdea(id);
+            //ideas[id].voters.add(msg.sender); //only used if we are going to track list of voters. Need to add var address[] voter
             DGT token = DGT(msg.sender);
-            //aftr poolContract is done: return token.transfer(poolrecipient, numVotes); + add in poolcontract address as input 
-            return true;
+            //after poolContract is done: return token.transfer(poolrecipient, numVotes); + add in poolcontract address as input 
+            return (true, canAppOrRej);
         }
         else{
-            return false;
+            return (false, canAppOrRej);
         }
 
     }
@@ -61,10 +64,10 @@ contract Ideas is DGT{
                 return true;
             }
             else{
-                return false; 
+                return false;  //idea's voteCount is not at least 100 yet. No approval/rejection of ideas allowed by any council member.
             }
         }
-        else {return false;}
+        else {return false;} //user is not a council member! cannot vote
 
     }
     //Set min number of approved/rejects from drivers and partners in order for idea to be finally approve/rejected. Store no. of approval in approvalCount. For now set as 3(out of 4 council members)
@@ -100,6 +103,16 @@ contract Ideas is DGT{
     
     function getAllIdeas() view public returns(Idea[] memory){
         return ideas;
+    }
+
+    //for frontend!
+    function checkvoteCountToSeeIfCanApproveRejectIdea(uint id) public returns(bool status){
+        if(ideas[id].voteCount>=100){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
 
