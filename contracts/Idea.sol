@@ -3,9 +3,9 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./Accounts.sol";
 import "./DGT.sol";
 
-contract Ideas is DGT{
+abstract contract Ideas is DGT{
     struct Idea {
-        uint32 id;
+        uint256 id;
         address owner;
         string desc;
         string title;
@@ -27,19 +27,21 @@ contract Ideas is DGT{
                     status: "pending", //approved, rejected
                     voteCount: 0,
                     //voters: _voters,
-                    approvalCount: 0
+                    approvalCount: 0,
+                    council: address[],
+                    rejectCount: 0
             }));
     }
     
     //frontend should receive two output from this function. 1st output: success of voting, 2nd ouput(optional!!up to jordan): whether idea is allowed for voting. if return true, frontend should enable voting button. 
-    function voteIdea(uint numVotes, uint id) public returns(bool vote_result, bool approveRejectIdea){ 
+    function voteIdea(uint numVotes, uint id) public returns(bool, bool){ 
         bool canAppOrRej = false;
-        if (numVotes >= (msg.sender).balanceOf){
+        if (numVotes >= balanceOf(msg.sender)){
             ideas[id].voteCount += numVotes;
             canAppOrRej = checkvoteCountToSeeIfCanApproveRejectIdea(id);
             //ideas[id].voters.add(msg.sender); //only used if we are going to track list of voters. Need to add var address[] voter
             DGT token = DGT(msg.sender);
-            //after poolContract is done: return token.transfer(poolrecipient, numVotes); + add in poolcontract address as input 
+            //! TODO: after poolContract is done: return token.transfer(poolrecipient, numVotes); + add in poolcontract address as input 
             return (true, canAppOrRej);
         }
         else{
@@ -50,8 +52,11 @@ contract Ideas is DGT{
     //Driver and partner companies only
     //Make sure pool got minimum number of 100 tokens first (need pool contract first) OR need make sure each idea has at least 100 votes first(going with the latter for now)
     function approveRejectIdea(bool decision, uint id) public returns (bool result){ 
-        DGT council = DGT(msg.sender);
-        if (council.viewAccountRole(msg.sender) == "Driver" || council.viewAccountRole(msg.sender) == "Partner/Investor" || council.viewAccountRole(msg.sender) == "Parnter"){
+        Accounts council = Accounts(msg.sender);
+        string memory accountRole = council.viewAccountRole(msg.sender);
+        bytes memory accountRoleB = bytes(accountRole);
+        // if (keccak256(accountRoleB) == keccak256("Driver") || council.viewAccountRole(msg.sender) == "Partner/Investor" || council.viewAccountRole(msg.sender) == "Partner"){
+        if (keccak256(accountRoleB) == keccak256("Driver") || keccak256(accountRoleB) == keccak256("Partner/Investor") || keccak256(accountRoleB) == keccak256("Partner")){
             if (ideas[id].voteCount >= 100 && !find(ideas[id].council, msg.sender)){
                 if (decision){
                     ideas[id].approvalCount += 1;
@@ -71,7 +76,7 @@ contract Ideas is DGT{
 
     }
     //Set min number of approved/rejects from drivers and partners in order for idea to be finally approve/rejected. Store no. of approval in approvalCount. For now set as 3(out of 4 council members)
-    function changeStatus(uint id) public returns (bool result, string status){
+    function changeStatus(uint id) public returns (bool result, string memory status){
          if (ideas[id].approvalCount >= 3){
             ideas[id].status = "approved";
             return (true, "Idea satus: Approved");
@@ -80,7 +85,7 @@ contract Ideas is DGT{
              ideas[id].status = "rejected";
              return (true, "Idea status: Rejected");
         }
-        else if(ideas[id].approvalCount = 2 && ideas[id].rejectCount = 2){
+        else if(ideas[id].approvalCount == 2 && ideas[id].rejectCount == 2){
             //what happens when its 2 VS 2 AH 
             return (false, "As there is equal number of Approve votes and Rejected votes, everything will be reset to 0 and council members will be required to revote.");
         }
@@ -90,7 +95,7 @@ contract Ideas is DGT{
         
     }
 
-    function find(address[] array, address target) public returns (bool result){
+    function find(address[] memory array, address target) public returns (bool result){
         for (uint i = 0; i < array.length; i++){
             if (array[i] == target){
                 return true;
@@ -114,6 +119,8 @@ contract Ideas is DGT{
             return false;
         }
     }
+
+    
 
 
 }
