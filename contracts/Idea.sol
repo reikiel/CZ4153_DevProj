@@ -26,9 +26,8 @@ abstract contract Ideas is DGT{
                     title: _title,
                     status: "pending", //approved, rejected
                     voteCount: 0,
-                    //voters: _voters,
                     approvalCount: 0,
-                    council: address[],
+                    council: new address[](0),
                     rejectCount: 0
             }));
     }
@@ -77,17 +76,13 @@ abstract contract Ideas is DGT{
     }
     //Set min number of approved/rejects from drivers and partners in order for idea to be finally approve/rejected. Store no. of approval in approvalCount. For now set as 3(out of 4 council members)
     function changeStatus(uint id) public returns (bool result, string memory status){
-         if (ideas[id].approvalCount >= 3){
+         if (ideas[id].approvalCount >= 2){
             ideas[id].status = "approved";
             return (true, "Idea satus: Approved");
         }
-        else if (ideas[id].rejectCount >= 3){
+        else if (ideas[id].rejectCount >= 2){
              ideas[id].status = "rejected";
              return (true, "Idea status: Rejected");
-        }
-        else if(ideas[id].approvalCount == 2 && ideas[id].rejectCount == 2){
-            //what happens when its 2 VS 2 AH 
-            return (false, "As there is equal number of Approve votes and Rejected votes, everything will be reset to 0 and council members will be required to revote.");
         }
         else {
             return (false, "");
