@@ -65,8 +65,8 @@ export const GetIdeas = ( statusFilter ) => {
   ]; 
 
   return ideas
-    .map(shrinkIdeaBodyIfLengthOverrun)
     .filter(idea => statusFilter === "all" || idea.status === statusFilter)
+    .map(shrinkIdeaBodyIfLengthOverrun)
     .sort((a,b) => b[NUM_VOTES] - a[NUM_VOTES] || b[TIMESTAMP] - a[TIMESTAMP]);
 };
 

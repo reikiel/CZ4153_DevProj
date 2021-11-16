@@ -12,6 +12,7 @@ import AccountStore from "../stores/AccountStore";
 import { NAME, TOKEN_COUNT } from "../constants/AccountConstants";
 import { LOGIN_ROUTE } from "../constants/RouteConstants";
 import { LogOut } from "../utils/AuthenticationService";
+import { FormatTokenCount } from "../utils/FormatHelper";
 import { Eth } from "react-cryptocoins";
 
 
@@ -40,7 +41,7 @@ export default function MainHeader() {
               component="div"
               sx={{ display: { xs: "none", sm: "block" }, minWidth: 15 }}
             >
-              {accountStore.get(TOKEN_COUNT)}
+              {FormatTokenCount(accountStore.get(TOKEN_COUNT))}
             </Typography>
             <Box sx={{ display: "flex", paddingRight: 1 }} />
             <Eth size={20}/>

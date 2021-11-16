@@ -5,8 +5,7 @@ import DGTContract from "../contracts/DGT";
 
 import {
   LOGIN_AWAITING_USER,
-  LOGIN_FAILED,
-  LOGIN_SUCCESSFUL,
+  LOGIN_ERROR_METHOD_NOT_SUPPORTED,
 } from "../constants/LoginStatusConstants";
 import { ADDRESS } from "../constants/AccountConstants";
 import { ACCOUNT_CONTRACT, DGT_CONTRACT } from "../constants/ContractConstants";
@@ -24,7 +23,9 @@ export const ConnectToWeb3 = async (accountStore, setLoginState) => {
       method: "eth_requestAccounts",
     });
 
-    accountStore.set(ADDRESS)(addresses[0]);
+    const address = addresses[0];
+    accountStore.set(ADDRESS)(address);
+    return address
   }
   // Legacy dapp browsers...
   else if (window.web3) {
@@ -37,8 +38,9 @@ export const ConnectToWeb3 = async (accountStore, setLoginState) => {
     window.web3 = new Web3(provider);
     console.log("No web3 instance injected, using Local web3.");
   }
-  return window.web3;
-};
+  setLoginState(LOGIN_ERROR_METHOD_NOT_SUPPORTED);
+  return null;
+}
 
 /**
  * Get Account contract. Create new instance if not exists.

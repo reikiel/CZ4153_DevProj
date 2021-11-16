@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import getWeb3 from "./getWeb3";
 import Login from "./components/Login";
 import IdeasDashboardPage from "./components/IdeasDashboardPage";
 import NewIdeaPage from "./components/NewIdeaPage";
@@ -18,46 +17,6 @@ import {
   MINT_ROUTE,
 } from "./constants/RouteConstants";
 import ThemeProvider from "./theme/ThemeProvider";
-
-const runExample = async (state, setState) => {
-  const { accounts, contract, storageValue } = state;
-
-  // Stores a given value, 5 by default.
-  await contract.methods.set(5).send({ from: accounts[0] });
-
-  // Get the value from the contract to prove it worked.
-  const response = await contract.methods.get().call();
-
-  // Update state with the result.
-  if (storageValue !== response) {
-    setState({ ...state, storageValue: response });
-  }
-};
-
-const connectToWeb3 = async (state, setState) => {
-  try {
-    // Get network provider and web3 instance.
-    const web3 = await getWeb3();
-
-    // Use web3 to get the user's accounts.
-    const accounts = await web3.eth.getAccounts();
-
-    // Get the contract instance.
-    const networkId = await web3.eth.net.getId();
-    const instance = null;
-
-    // Set web3, accounts, and contract to the state, and then proceed with an
-    // example of interacting with the contract's methods.
-    setState({ ...state, web3, accounts: accounts, contract: instance });
-    console.log(state);
-  } catch (error) {
-    // Catch any errors for any of the above operations.
-    alert(
-      `Failed to load web3, accounts, or contract. Check console for details.`
-    );
-    console.error(error);
-  }
-};
 
 // TODO: Remove and add landing page
 const PlaceHolder = ({ valueParam }) => {
@@ -79,19 +38,6 @@ const PlaceHolder = ({ valueParam }) => {
 };
 
 function App() {
-  const [state, setState] = useState({
-    storageValue: 0,
-    web3: null,
-    accounts: null,
-    contract: null,
-  });
-
-  //connectToWeb3(state, setState);
-  //useEffect(() => {runExample(state, setState)}, [state]);
-
-  //if (!state.web3) {
-  //    return <div>Loading Web3, accounts, and contract...</div>;
-  //}
   return (
     <ThemeProvider>
       <CssBaseline />

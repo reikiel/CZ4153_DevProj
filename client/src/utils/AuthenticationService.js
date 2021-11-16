@@ -22,6 +22,11 @@ import {
   GetAccountContract,
   GetDGTContract,
 } from "./Web3Client";
+import {
+  LOGIN_INIT,
+  LOGIN_FAILED,
+  LOGIN_ERROR_ALREADY_AWAITING_USER,
+} from "../constants/LoginStatusConstants";
 
 const ALL_ROLES = [DRIVER, PARTNER_INVESTOR, INVESTOR, PARTNER, USER];
 
@@ -29,7 +34,7 @@ const ALL_ROLES = [DRIVER, PARTNER_INVESTOR, INVESTOR, PARTNER, USER];
 const ROUTE_TO_ROLES_WITH_ACCESS = {
   [IDEAS_ROUTE]: ALL_ROLES,
   [NEW_IDEA_ROUTE]: ALL_ROLES,
-  [MINT_ROUTE]: [DRIVER, INVESTOR, PARTNER],
+  [MINT_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR, PARTNER],
 };
 
 /**
@@ -44,7 +49,7 @@ const getRolesWithPageAccess = (route) => {
 
 // Returns whether the user is logged in
 export const IsLoggedIn = (accountStore) => {
-  return accountStore.get(ACCOUNT_TYPE) !== null;
+  return accountStore.get(ADDRESS) !== null;
 };
 
 /**
@@ -67,29 +72,31 @@ export const HasSpecialAccess = (accountStore, route) => {
 
 /**
  * Attempts to login for the user.
+ * Throws exception for error states if there is a wallet connection issues
+ * (user or otherwise)
  * Returns whether the user has successfully logged in
  */
 export const TryLogIn = async (accountStore, contractStore, setLoginState) => {
-  // TODO: Add authentication checks + Get account info => web3
-  ConnectToWeb3(accountStore, setLoginState);
+  // deletes any localstorage using "accountState" key
+  window.localStorage.removeItem("accountState");
+
+  const address = await ConnectToWeb3(accountStore, setLoginState);
 
   // Successfully connected to metamusk, account address set.
   // Query AddressContract to obtain more Account info
-  const address = accountStore.get(ADDRESS);
   if (address !== null) {
-    console.log(address);
-    const accountContract = await GetAccountContract(contractStore);
-    const dgtContract = await GetDGTContract(contractStore);
+    const [accountContract, dgtContract] = await Promise.all([
+      GetAccountContract(contractStore),
+      GetDGTContract(contractStore),
+    ]);
 
-    const accountRole = await accountContract.methods
-      .viewAccountRole(address)
-      .call();
-    const accountName = await accountContract.methods
-      .viewAccountName(address)
-      .call();
-    const dgtTokenCount = await dgtContract.methods.balanceOf(address).call();
+    const [accountType, accountName, dgtTokenCount] = await Promise.all([
+      accountContract.methods.viewAccountRole(address).call(),
+      accountContract.methods.viewAccountName(address).call(),
+      dgtContract.methods.balanceOf(address).call(),
+    ]);
 
-    accountStore.set(ACCOUNT_TYPE)(accountRole);
+    accountStore.set(ACCOUNT_TYPE)(accountType);
     accountStore.set(NAME)(accountName);
     accountStore.set(TOKEN_COUNT)(dgtTokenCount);
     return true;
@@ -105,4 +112,23 @@ export const LogOut = (accountStore) => {
   accountStore.set(NAME)(null);
   accountStore.set(ADDRESS)(null);
   accountStore.set(TOKEN_COUNT)(null);
+};
+
+/**
+ * Handles the error for the rpc calls
+ */
+export const HandleWalletRPCError = (error, setLoginState) => {
+  switch (error.code) {
+    case 4001:
+      // User cancels request. Restart login process
+      setLoginState(LOGIN_INIT);
+      break;
+    case -32002:
+      // Already pending request
+      setLoginState(LOGIN_ERROR_ALREADY_AWAITING_USER);
+      break;
+    default:
+      // Should never reach this state unless there is a new error code
+      setLoginState(LOGIN_FAILED);
+  }
 };
