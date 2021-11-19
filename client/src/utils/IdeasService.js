@@ -1,5 +1,6 @@
 import { TOKEN_COUNT } from "../constants/AccountConstants";
 import { TITLE, BODY, NUM_VOTES, IDEA_ID, TIMESTAMP, OWNER, STATUS, PENDING_STATUS, REJECTED_STATUS } from "../constants/IdeaConstants";
+import { GetIdeasContract } from "./Web3Client";
 
 
 const MAX_BODY_LENGTH = 51;
@@ -14,8 +15,13 @@ const shrinkIdeaBodyIfLengthOverrun = idea => {
 /**
  * Get all ideas
  */
-export const GetIdeas = ( statusFilter ) => {
+export const GetIdeas = async ( contractStore, statusFilter ) => {
+
+  const ideasContract = await GetIdeasContract(contractStore);
+
+  const ideas = ideasContract.methods.getAllIdeas().call();  
   // Replace with call to getIdeas view
+  /*
   const ideas = [
     {
       [TITLE]: "Title 1",
@@ -63,6 +69,7 @@ export const GetIdeas = ( statusFilter ) => {
       [IDEA_ID]: 4
     }
   ]; 
+  */
 
   return ideas
     .filter(idea => statusFilter === "all" || idea.status === statusFilter)

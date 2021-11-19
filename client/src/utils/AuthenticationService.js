@@ -42,9 +42,7 @@ const ROUTE_TO_ROLES_WITH_ACCESS = {
  * Defaults to empty list - no user has access.
  */
 const getRolesWithPageAccess = (route) => {
-  const rolesWithAccess = ROUTE_TO_ROLES_WITH_ACCESS[route];
-
-  return rolesWithAccess ?? [];
+  return ROUTE_TO_ROLES_WITH_ACCESS[route] ?? [];
 };
 
 // Returns whether the user is logged in
@@ -62,10 +60,6 @@ export const IsLoggedIn = (accountStore) => {
 export const HasSpecialAccess = (accountStore, route) => {
   const userRole = accountStore.get(ACCOUNT_TYPE);
   const rolesWithAccess = getRolesWithPageAccess(route);
-
-  if (rolesWithAccess == null) {
-    return false;
-  }
 
   return rolesWithAccess.indexOf(userRole) > -1;
 };

@@ -15,6 +15,7 @@ import {
   APPROVED_STATUS,
   REJECTED_STATUS,
 } from "../constants/IdeaConstants";
+import { default as ContractStore } from "../stores/ContractStore";
 
 const useStyles = makeStyles({
   ideaCardSpacing: {
@@ -26,11 +27,12 @@ const useStyles = makeStyles({
 });
 
 export default function IdeasDashboard() {
+  const contractStore = ContractStore.useStore();
   const [ideaStatusFilter, setIdeaStatusFilter] = useState("all");
   const [ideaPopupID, setIdeaPopupID] = useState(-1); // -1 means that there are no popups
 
   const classes = useStyles();
-  const ideas = GetIdeas(ideaStatusFilter);
+  const ideas = GetIdeas(contractStore, ideaStatusFilter);
 
   return (
     <>
@@ -64,13 +66,15 @@ export default function IdeasDashboard() {
               <IdeasCard
                 idea={idea}
                 key={index}
-                handleClick={() => {setIdeaPopupID(-1) }} // Disable popup for now
+                handleClick={() => {
+                  setIdeaPopupID(-1);
+                }} // Disable popup for now
               />
               <Box className={classes.ideaCardSpacing} />
               <IdeasPopupCard
                 open={ideaPopupID === index}
                 handleClose={() => setIdeaPopupID(-1)}
-                key={'popup-' + index}
+                key={"popup-" + index}
                 idea={idea}
               />
             </>

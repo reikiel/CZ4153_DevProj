@@ -1,14 +1,15 @@
 import Web3 from "web3";
 
 import AccountsContract from "../contracts/Accounts.json";
-import DGTContract from "../contracts/DGT";
+import DGTContract from "../contracts/DGT.json";
+import IdeasContract from "../contracts/Ideas.json"
 
 import {
   LOGIN_AWAITING_USER,
   LOGIN_ERROR_METHOD_NOT_SUPPORTED,
 } from "../constants/LoginStatusConstants";
 import { ADDRESS } from "../constants/AccountConstants";
-import { ACCOUNT_CONTRACT, DGT_CONTRACT } from "../constants/ContractConstants";
+import { ACCOUNT_CONTRACT, IDEAS_CONTRACT, DGT_CONTRACT } from "../constants/ContractConstants";
 
 /**
  * Connects to Web3, and set Login state accordingly.
@@ -47,11 +48,11 @@ export const ConnectToWeb3 = async (accountStore, setLoginState) => {
  */
 export const GetAccountContract = async (contractStore) => {
   const accountContract = contractStore.get(ACCOUNT_CONTRACT);
-  if (accountContract !== null) {
+  if (accountContract != null) {
     return accountContract;
   }
 
-  if (window.web3 !== null) {
+  if (window.web3 != null) {
     const networkId = await window.web3.eth.net.getId();
     const deployedNetwork = AccountsContract.networks[networkId];
     const accountContract = new window.web3.eth.Contract(
@@ -69,11 +70,11 @@ export const GetAccountContract = async (contractStore) => {
  */
 export const GetDGTContract = async (contractStore) => {
   const dgtContract = contractStore.get(DGT_CONTRACT);
-  if (dgtContract !== null) {
+  if (dgtContract != null) {
     return dgtContract;
   }
 
-  if (window.web3 !== null) {
+  if (window.web3 != null) {
     const networkId = await window.web3.eth.net.getId();
     const deployedNetwork = DGTContract.networks[networkId];
     const dgtContract = new window.web3.eth.Contract(
@@ -85,3 +86,25 @@ export const GetDGTContract = async (contractStore) => {
   }
   console.log("ERROR: Web3 not initialised.");
 };
+
+/**
+ * Get DGT Token contract. Create new instance if not exists
+ */
+export const GetIdeasContract = async (contractStore) => {
+  const ideasContract = contractStore.get(IDEAS_CONTRACT);
+  if (ideasContract != null) {
+    return ideasContract;
+  }
+
+  if (window.web3 != null) {
+    const networkId = await window.web3.eth.net.getId();
+    const deployedNetwork = IdeasContract.networks[networkId];
+    const ideasContract = new window.web3.eth.Contract(
+      IdeasContract.abi,
+      deployedNetwork && deployedNetwork.address
+    );
+    contractStore.set(IDEAS_CONTRACT)(ideasContract);
+    return ideasContract;
+  }
+  console.log("ERROR: Web3 not initialised.");
+}
