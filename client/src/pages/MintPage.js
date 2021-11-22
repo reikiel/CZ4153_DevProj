@@ -1,6 +1,6 @@
 import React from "react";
-import MainLayout from "./MainLayout";
-import Mint from "./Mint";
+import MainLayout from "../components/MainLayout";
+import Mint from "../components/Mint";
 
 export default function MintPage() {
   return (

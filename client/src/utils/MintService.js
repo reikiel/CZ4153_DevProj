@@ -1,8 +1,11 @@
+import { ADDRESS } from "../constants/AccountConstants";
 import {
-  MINT_INITIATOR,
-  MINT_STATUS,
+  MINT_AMOUNT,
+  MINT_IS_ACTIVE,
   MINT_USERS_VOTED,
 } from "../constants/MintVoteConstants";
+
+import { GetPoolContract } from "./Web3Client";
 
 /**
  * Returns whether there is currently an ongoing vote
@@ -12,26 +15,58 @@ export const CurrentMintVoteOngoing = () => {
 };
 
 /**
- * Returns the current minting vote object,
- * or null if it does not exist
+ * Returns the current minting vote object
  */
-export const GetCurrentMintVote = () => {
-  // TODO: Call web3
-  const mintVoteStruct = {
-    [MINT_INITIATOR]: "a",
-    [MINT_STATUS]: "2/5", // Check logic for approval
-    [MINT_USERS_VOTED]: ["a", "b", "c"],
-  };
+export const GetCurrentMintVote = async (contractStore, setCurrentMintVote) => {
+  const poolContract = await GetPoolContract(contractStore);
 
-  return mintVoteStruct;
+  const mintStatus = await poolContract.methods.viewMintStatus().call();
+
+  setCurrentMintVote({
+    [MINT_IS_ACTIVE]: mintStatus[0],
+    [MINT_AMOUNT]: mintStatus[1],
+    [MINT_USERS_VOTED]: mintStatus[2],
+  });
+};
+
+/**
+ * Get the current pool size
+ */
+export const GetNumberOfTokensInPool = async (
+  contractStore,
+  setNumTokensInPool
+) => {
+  const poolContract = await GetPoolContract(contractStore);
+
+  const numberOfTokensInPool = await poolContract.methods
+    .viewPoolBalance()
+    .call();
+
+  setNumTokensInPool(numberOfTokensInPool);
 };
 
 // Initiate a vote
-export const InitiateMintVote = () => {
-  // TODO: call web3
+export const TryInitiateMintVote = async (
+  accountStore,
+  contractStore,
+  numTokens
+) => {
+  const address = accountStore.get(ADDRESS);
+  const poolContract = await GetPoolContract(contractStore);
+
+  await poolContract.methods.requestMint(numTokens).send({ from: address });
 };
 
-// Accept a vote
-export const AcceptMintVote = () => {
-  // TODO: call web3
+// Accept mint
+export const TryAcceptMintVote = async (accountStore, contractStore) => {
+  const address = accountStore.get(ADDRESS);
+  const poolContract = await GetPoolContract(contractStore);
+  await poolContract.methods.approveMint(address).send({ from: address });
+};
+
+// Reject mint
+export const TryRejectMintVote = async (accountStore, contractStore) => {
+  const address = accountStore.get(ADDRESS);
+  const poolContract = await GetPoolContract(contractStore);
+  await poolContract.methods.rejectMint(address).send({ from: address });
 };

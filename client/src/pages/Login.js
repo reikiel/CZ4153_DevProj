@@ -54,7 +54,7 @@ const AlertMessage = (loginState) => {
       );
     case LOGIN_ERROR_METHOD_NOT_SUPPORTED:
       return (
-        "Current login method not supported. Please download " +
+        "Current login method not supported. Please " +
         "ensure that you have downloaded a wallet. If this error " +
         "persists, try to use an updated Google Chrome browser."
       );
@@ -74,10 +74,8 @@ export default function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     TryLogIn(accountStore, contractStore, setLoginState)
-      .then((success) => {
-        if (success) {
-          setLoginState(LOGIN_SUCCESSFUL);
-        }
+      .then(() => {
+        setLoginState(LOGIN_SUCCESSFUL);
       })
       .catch((error) => HandleWalletRPCError(error, setLoginState));
   };

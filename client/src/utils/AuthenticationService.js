@@ -2,8 +2,7 @@ import {
   DRIVER,
   PARTNER_INVESTOR,
   INVESTOR,
-  PARTNER,
-  USER,
+  ALL_ROLES,
 } from "../constants/RoleConstants";
 import {
   IDEAS_ROUTE,
@@ -27,14 +26,17 @@ import {
   LOGIN_FAILED,
   LOGIN_ERROR_ALREADY_AWAITING_USER,
 } from "../constants/LoginStatusConstants";
-
-const ALL_ROLES = [DRIVER, PARTNER_INVESTOR, INVESTOR, PARTNER, USER];
+import CodedException from "./CodedException";
+import {
+  ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_CODE,
+  ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_MESSAGE,
+} from "../constants/CustomCodedExceptionConstants";
 
 // Stores the map of routes with the corresponding permissions
 const ROUTE_TO_ROLES_WITH_ACCESS = {
   [IDEAS_ROUTE]: ALL_ROLES,
   [NEW_IDEA_ROUTE]: ALL_ROLES,
-  [MINT_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR, PARTNER],
+  [MINT_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR],
 };
 
 /**
@@ -61,14 +63,15 @@ export const HasSpecialAccess = (accountStore, route) => {
   const userRole = accountStore.get(ACCOUNT_TYPE);
   const rolesWithAccess = getRolesWithPageAccess(route);
 
-  return rolesWithAccess.indexOf(userRole) > -1;
+  return rolesWithAccess.includes(userRole);
 };
 
 /**
  * Attempts to login for the user.
  * Throws exception for error states if there is a wallet connection issues
  * (user or otherwise)
- * Returns whether the user has successfully logged in
+ * If there are no exceptions, all the processes required for the user to log
+ * in succeeded.
  */
 export const TryLogIn = async (accountStore, contractStore, setLoginState) => {
   // deletes any localstorage using "accountState" key
@@ -78,25 +81,27 @@ export const TryLogIn = async (accountStore, contractStore, setLoginState) => {
 
   // Successfully connected to metamusk, account address set.
   // Query AddressContract to obtain more Account info
-  if (address !== null) {
-    const [accountContract, dgtContract] = await Promise.all([
-      GetAccountContract(contractStore),
-      GetDGTContract(contractStore),
-    ]);
-
-    const [accountType, accountName, dgtTokenCount] = await Promise.all([
-      accountContract.methods.viewAccountRole(address).call(),
-      accountContract.methods.viewAccountName(address).call(),
-      dgtContract.methods.balanceOf(address).call(),
-    ]);
-
-    accountStore.set(ACCOUNT_TYPE)(accountType);
-    accountStore.set(NAME)(accountName);
-    accountStore.set(TOKEN_COUNT)(dgtTokenCount);
-    return true;
+  if (address == null) {
+    throw CodedException(
+      ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_CODE,
+      ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_MESSAGE
+    );
   }
 
-  return false;
+  const [accountContract, dgtContract] = await Promise.all([
+    GetAccountContract(contractStore),
+    GetDGTContract(contractStore),
+  ]);
+
+  const [accountType, accountName, dgtTokenCount] = await Promise.all([
+    accountContract.methods.viewAccountRole(address).call(),
+    accountContract.methods.viewAccountName(address).call(),
+    dgtContract.methods.balanceOf(address).call(),
+  ]);
+
+  accountStore.set(ACCOUNT_TYPE)(accountType);
+  accountStore.set(NAME)(accountName);
+  accountStore.set(TOKEN_COUNT)(dgtTokenCount);
 };
 
 export const LogOut = (accountStore) => {

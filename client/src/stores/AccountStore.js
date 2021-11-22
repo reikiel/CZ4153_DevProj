@@ -1,5 +1,10 @@
 import { createConnectedStore } from "undux";
-import { ACCOUNT_TYPE, ADDRESS, TOKEN_COUNT, NAME } from "../constants/AccountConstants";
+import {
+  ACCOUNT_TYPE,
+  ADDRESS,
+  TOKEN_COUNT,
+  NAME,
+} from "../constants/AccountConstants";
 
 // Persistent Accounts store - state remains even after refresh
 const initialAccountState = {

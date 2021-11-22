@@ -4,7 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {
   TITLE,
-  BODY,
+  DESCRIPTION,
   NUM_VOTES,
   OWNER,
   STATUS,
@@ -27,7 +27,7 @@ export default function IdeasPopupCard({ open, handleClose, idea }) {
       <Box className={classes.card}>
         <DialogTitle>{idea[TITLE]}</DialogTitle>
         <DialogContent>
-          {idea[BODY]}
+          {idea[DESCRIPTION]}
         </DialogContent>
       </Box>
     </Dialog>

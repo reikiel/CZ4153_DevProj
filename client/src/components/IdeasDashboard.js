@@ -1,21 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { GetIdeas } from "../utils/IdeasService";
+import { GetIdeasWithFilter } from "../utils/IdeasService";
 import IdeasCard from "./IdeasCard";
-import IdeasPopupCard from "./IdeasPopupCard";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import Typography from "@mui/material/Typography";
 import { makeStyles } from "@material-ui/styles";
-import { Grid, MenuItem, Select } from "@mui/material";
+import { CircularProgress, Grid, MenuItem, Select } from "@mui/material";
 import {
-  TITLE,
-  OWNER,
   PENDING_STATUS,
   APPROVED_STATUS,
   REJECTED_STATUS,
 } from "../constants/IdeaConstants";
 import { default as ContractStore } from "../stores/ContractStore";
+import { default as IdeaStore } from "../stores/IdeaStore";
 
 const useStyles = makeStyles({
   ideaCardSpacing: {
@@ -24,15 +22,26 @@ const useStyles = makeStyles({
   titleSpacing: {
     paddingBottom: 5,
   },
+  spinner: {
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default function IdeasDashboard() {
   const contractStore = ContractStore.useStore();
+  const ideaStore = IdeaStore.useStore();
   const [ideaStatusFilter, setIdeaStatusFilter] = useState("all");
-  const [ideaPopupID, setIdeaPopupID] = useState(-1); // -1 means that there are no popups
+  const [ideas, setIdeas] = useState(null);
 
   const classes = useStyles();
-  const ideas = GetIdeas(contractStore, ideaStatusFilter);
+
+  useEffect(() => {
+    GetIdeasWithFilter(contractStore, ideaStore, ideaStatusFilter).then(
+      setIdeas
+    );
+  }, [ideaStatusFilter]);
 
   return (
     <>
@@ -58,33 +67,30 @@ export default function IdeasDashboard() {
           </FormControl>
         </Box>
       </Box>
-      <Box sx={{ m: 4 }} />
-      <Grid container style={{ width: "100%" }} direction="row" wrap="wrap">
-        {ideas.length > 0 ? (
-          ideas.map((idea, index) => (
+      <Box sx={{ m: 4}} />
+      {ideas == null ? (
+        <Box sx={{ display: "flex"  }} className={classes.spinner}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container style={{ width: "100%" }} direction="row" wrap="wrap">
+          {ideas.length > 0 ? (
+            ideas.map((idea, index) => (
+              <div key={index}>
+                <IdeasCard
+                  idea={idea}
+                  setIdeas={setIdeas}
+                />
+                <Box className={classes.ideaCardSpacing} />
+              </div>
+            ))
+          ) : (
             <>
-              <IdeasCard
-                idea={idea}
-                key={index}
-                handleClick={() => {
-                  setIdeaPopupID(-1);
-                }} // Disable popup for now
-              />
-              <Box className={classes.ideaCardSpacing} />
-              <IdeasPopupCard
-                open={ideaPopupID === index}
-                handleClose={() => setIdeaPopupID(-1)}
-                key={"popup-" + index}
-                idea={idea}
-              />
+              <Typography>No ideas found...</Typography>
             </>
-          ))
-        ) : (
-          <>
-            <Typography>No ideas found...</Typography>
-          </>
-        )}
-      </Grid>
+          )}
+        </Grid>
+      )}
     </>
   );
 }

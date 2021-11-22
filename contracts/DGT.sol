@@ -21,6 +21,6 @@ contract DGT is ERC20 {
     // function to mint Tokens and put in the pool
     function mintTokens(uint256 _amount, address _addr) public {
         // require(msg.sender == poolAddress, "Only PoolContract can call this function");
-        _mint(msg.sender, _amount * (10 ** decimals()) );
+        _mint(msg.sender, _amount);
     }
 }

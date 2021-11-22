@@ -1,8 +1,7 @@
 import { createConnectedStore } from "undux";
-import { GetIdeas } from "../utils/IdeasService";
 
 const initialIdeaState = {
-  ideas: GetIdeas("all")
-}
+  ideas: null,
+};
 
 export default createConnectedStore(initialIdeaState);
