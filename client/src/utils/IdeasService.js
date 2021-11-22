@@ -253,7 +253,7 @@ export const CanExecuteIdeaAction = (accountStore, idea, actionType) => {
       .includes(address.toLowerCase());
 
     // (2) Check if number of votes exceed 100
-    const votesExceedMinimum = idea[NUM_VOTES] > 100;
+    const votesExceedMinimum = idea[NUM_VOTES] >= 100;
 
     userHasPermissions =
       userHasPermissions && userHasNotVoted && votesExceedMinimum;

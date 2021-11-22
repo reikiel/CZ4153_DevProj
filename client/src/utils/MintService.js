@@ -8,13 +8,6 @@ import {
 import { GetPoolContract } from "./Web3Client";
 
 /**
- * Returns whether there is currently an ongoing vote
- */
-export const CurrentMintVoteOngoing = () => {
-  return false;
-};
-
-/**
  * Returns the current minting vote object
  */
 export const GetCurrentMintVote = async (contractStore, setCurrentMintVote) => {
