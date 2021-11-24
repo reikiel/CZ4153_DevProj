@@ -24,6 +24,7 @@ contract Pool {
         address to;
         uint256 amount;
         uint256 numApprovals;
+        uint256 id;
         bool isApproved; // switched to true if approval condition met
         bool isActive; // if any operations can still be done on this Transfer
     }
@@ -68,7 +69,6 @@ contract Pool {
     /*
      * Modifiers
      */
-
     modifier isDriver() {
         require(driver == msg.sender, "Only driver can execute this function");
         _;
@@ -130,6 +130,10 @@ contract Pool {
     {
         isCouncilMember[_newCouncilMember] = true;
         councilMembers.push(_newCouncilMember);
+    }
+
+    function getCouncilMembers() public view returns (address[] memory) {
+        return councilMembers;
     }
 
     /*
@@ -208,6 +212,7 @@ contract Pool {
                 to: _to,
                 amount: _amount,
                 numApprovals: 0,
+                id: adhocTransfers.length,
                 isApproved: false,
                 isActive: true
             })
@@ -255,6 +260,15 @@ contract Pool {
         returns (AdhocTransfer[] memory)
     {
         return adhocTransfers;
+    }
+
+    function getHasConfirmedAdhocTransfer(uint256 _id)
+        public
+        view
+        isCouncil
+        returns (bool)
+    {
+        return adhocTransferVotedCouncilMembers[_id][msg.sender];
     }
 
     /*

@@ -48,71 +48,61 @@ import {
   IDEA_CARD_VOTE_STATE,
 } from "../constants/IdeaCardStateConstants";
 
-const useStyles = (borderColor) => {
-  return makeStyles({
-    card: {
-      width: 275,
-      marginRight: "10px",
-      marginBottom: "20px",
-      transition: "0.3s",
-      boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)",
-      "&:hover": {
-        boxShadow: "0 16px 70px -12.125px rgba(0,0,0,0.3)",
-      },
-      height: 350,
+const useStyles = makeStyles({
+  card: {
+    width: 275,
+    marginRight: "10px",
+    marginBottom: "20px",
+    transition: "0.3s",
+    boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)",
+    "&:hover": {
+      boxShadow: "0 16px 70px -12.125px rgba(0,0,0,0.3)",
     },
-    media: {
-      paddingTop: "56.25%",
+    height: 350,
+  },
+  media: {
+    paddingTop: "56.25%",
+  },
+  content: {
+    textAlign: "left",
+    padding: 2 * 3,
+  },
+  contentBody: {
+    wordWrap: "break-word",
+    overflow: "hidden",
+    height: 45,
+  },
+  divider: {
+    margin: `${2 * 3}px 0`,
+  },
+  heading: {
+    fontWeight: "bold",
+  },
+  subheading: {
+    lineHeight: 1.8,
+  },
+  avatar: {
+    display: "inline-block",
+    border: "2px solid white",
+    "&:not(:first-of-type)": {
+      marginLeft: -2,
     },
-    content: {
-      textAlign: "left",
-      padding: 2 * 3,
-    },
-    contentBody: {
-      wordWrap: "break-word",
-      overflow: "hidden",
-      height: 45,
-    },
-    divider: {
-      margin: `${2 * 3}px 0`,
-    },
-    heading: {
-      fontWeight: "bold",
-    },
-    subheading: {
-      lineHeight: 1.8,
-    },
-    avatar: {
-      display: "inline-block",
-      border: "2px solid white",
-      "&:not(:first-of-type)": {
-        marginLeft: -2,
-      },
-    },
-    voteInputBox: {
-      width: 100,
-      height: 25,
-      padding: 0,
-    },
-    paddingLeft10: {
-      paddingLeft: 2,
-    },
-    menu: {
-      height: 200,
-    },
-    titleBox: {
-      width: 200,
-    },
-  });
-};
-
-const loadMenuOptions = (accountStore, idea, setMenuOptions) => {
-  setMenuOptions(
-    ALL_IDEA_ACTIONS.filter((action) =>
-      CanExecuteIdeaAction(accountStore, idea, action)
-    )
-  );
-};
+  },
+  voteInputBox: {
+    width: 100,
+    height: 25,
+    padding: 0,
+  },
+  paddingLeft10: {
+    paddingLeft: 2,
+  },
+  menu: {
+    height: 200,
+  },
+  titleBox: {
+    width: 200,
+  },
+});
 
 // Obtain the color of the star icon. This is used to show
 // the number of approved/rejected votes by the council
@@ -134,7 +124,7 @@ const GetStarColor = (approvalCount, rejectionCount, id) => {
 const STAR_ICON_INDICES = Array.from(Array(3).keys());
 
 export default function IdeasCard({ idea, setIdeas }) {
-  const classes = useStyles("blue")();
+  const classes = useStyles();
   const accountStore = AccountStore.useStore();
   const contractStore = ContractStore.useStore();
   const ideaStore = IdeaStore.useStore();
@@ -143,22 +133,6 @@ export default function IdeasCard({ idea, setIdeas }) {
 
   // hooks to force refresh specific components on specific actions
   const [voteCount, setVoteCount] = useState(0);
-  const [ideaVoteCount, setIdeaVoteCount] = useState(parseInt(idea[NUM_VOTES]));
-  const [menuOptions, setMenuOptions] = useState([]);
-  const [approvalCount, setApprovalCount] = useState(
-    parseInt(idea[APPROVAL_COUNT])
-  );
-  const [rejectCount, setRejectCount] = useState(
-    parseInt(idea[REJECTION_COUNT])
-  );
-
-  // upon reset, obtain updated info and update specific components
-  useEffect(() => {
-    loadMenuOptions(accountStore, idea, setMenuOptions);
-    setIdeaVoteCount(parseInt(idea[NUM_VOTES]));
-    setApprovalCount(parseInt(idea[APPROVAL_COUNT]));
-    setRejectCount(parseInt(idea[REJECTION_COUNT]));
-  }, [idea]);
 
   const reloadIdeaState = () =>
     LoadIdeas(contractStore, ideaStore).then(setIdeas);
@@ -167,7 +141,7 @@ export default function IdeasCard({ idea, setIdeas }) {
   // Component rendered depends on user's Account Type
   // TODO: Refactor to its own component
   //       and add exception handlers
-  const AdditionalOptions = ({ menuOptions }) => {
+  const AdditionalOptions = ({ idea, menuOptions }) => {
     // TODO: fix clickawaylistener
     return (
       <>
@@ -241,6 +215,10 @@ export default function IdeasCard({ idea, setIdeas }) {
     );
   };
 
+  const menuOptions = ALL_IDEA_ACTIONS.filter((action) =>
+    CanExecuteIdeaAction(accountStore, idea, action)
+  );
+
   return (
     <Card variant="outlined" className={classes.card}>
       <CardMedia
@@ -267,7 +245,11 @@ export default function IdeasCard({ idea, setIdeas }) {
                   <StarIcon
                     style={{
                       fontSize: 10,
-                      fill: GetStarColor(approvalCount, rejectCount, index),
+                      fill: GetStarColor(
+                        parseInt(idea[APPROVAL_COUNT]),
+                        parseInt(idea[REJECTION_COUNT]),
+                        index
+                      ),
                     }}
                   />
                 ))}
@@ -286,7 +268,7 @@ export default function IdeasCard({ idea, setIdeas }) {
               <Box
                 sx={{ display: "flex", alignItems: "center", minWidth: "15px" }}
               >
-                <Typography>{ideaVoteCount}</Typography>
+                <Typography>{idea[NUM_VOTES]}</Typography>
               </Box>
               <Box
                 sx={{
@@ -301,7 +283,7 @@ export default function IdeasCard({ idea, setIdeas }) {
             </Box>
             <Box>
               <CardActions style={{ padding: 0, flexGrow: 1 }}>
-                <AdditionalOptions menuOptions={menuOptions} />
+                <AdditionalOptions idea={idea} menuOptions={menuOptions} />
                 {cardState === IDEA_CARD_VOTE_STATE && (
                   <Input
                     required

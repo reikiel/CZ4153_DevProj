@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import IdeasDashboardPage from "./pages/IdeasDashboardPage";
 import NewIdeaPage from "./pages/NewIdeaPage";
 import MintPage from "./pages/MintPage";
+import AdhocTransferPage from "./pages/AdhocTransferPage";
+import NewAdhocTransferPage from "./pages/NewAdhocTransferPage";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import AuthenticatedRoute from "./utils/AuthenticatedRoute";
@@ -11,9 +13,11 @@ import StoreContainer from "./components/StoreContainer";
 import {
   IDEAS_ROUTE,
   LOGIN_ROUTE,
-  ROOT_ROUTE,
   NEW_IDEA_ROUTE,
+  ROOT_ROUTE,
   MINT_ROUTE,
+  ADHOC_TRANSFER_ROUTE,
+  NEW_ADHOC_TRANSFER_ROUTE,
 } from "./constants/RouteConstants";
 import ThemeProvider from "./theme/ThemeProvider";
 
@@ -54,6 +58,12 @@ function App() {
             </AuthenticatedRoute>
             <AuthenticatedRoute path={MINT_ROUTE}>
               <MintPage />
+            </AuthenticatedRoute>
+            <AuthenticatedRoute path={ADHOC_TRANSFER_ROUTE}>
+              <AdhocTransferPage />
+            </AuthenticatedRoute>
+            <AuthenticatedRoute path={NEW_ADHOC_TRANSFER_ROUTE}>
+              <NewAdhocTransferPage />
             </AuthenticatedRoute>
             <Route path={ROOT_ROUTE} component={PlaceHolder}>
               <PlaceHolder valueParam={5} />

@@ -5,6 +5,8 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
+import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
 import List from "@mui/material/List";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -17,8 +19,10 @@ import { Link } from "react-router-dom";
 import { HasSpecialAccess } from "../utils/AuthenticationService";
 import { default as AccountStore } from "../stores/AccountStore";
 import {
+  ADHOC_TRANSFER_ROUTE,
   IDEAS_ROUTE,
   MINT_ROUTE,
+  NEW_ADHOC_TRANSFER_ROUTE,
   NEW_IDEA_ROUTE,
 } from "../constants/RouteConstants";
 
@@ -40,11 +44,21 @@ const SIDEBAR_ITEMS = [
     icon: <AddCircleIcon />,
     route: MINT_ROUTE,
   },
+  {
+    text: "Adhoc Transfers",
+    icon: <TransferWithinAStationIcon />,
+    route: ADHOC_TRANSFER_ROUTE,
+  },
+  {
+    text: "New Transfer",
+    icon: <AutorenewIcon />,
+    route: NEW_ADHOC_TRANSFER_ROUTE,
+  },
 ];
 
 const useStyles = makeStyles({
   mainContent: {
-    width: "100%"
+    width: "100%",
   },
 });
 

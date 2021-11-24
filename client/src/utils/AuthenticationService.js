@@ -5,8 +5,10 @@ import {
   ALL_ROLES,
 } from "../constants/RoleConstants";
 import {
+  ADHOC_TRANSFER_ROUTE,
   IDEAS_ROUTE,
   MINT_ROUTE,
+  NEW_ADHOC_TRANSFER_ROUTE,
   NEW_IDEA_ROUTE,
 } from "../constants/RouteConstants";
 import {
@@ -26,17 +28,20 @@ import {
   LOGIN_FAILED,
   LOGIN_ERROR_ALREADY_AWAITING_USER,
 } from "../constants/LoginStatusConstants";
-import CodedException from "./CodedException";
 import {
   ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_CODE,
   ADDRESS_NOT_SET_AFTER_LOGIN_SUCCESS_MESSAGE,
 } from "../constants/CustomCodedExceptionConstants";
+
+import CodedException from "./CodedException";
 
 // Stores the map of routes with the corresponding permissions
 const ROUTE_TO_ROLES_WITH_ACCESS = {
   [IDEAS_ROUTE]: ALL_ROLES,
   [NEW_IDEA_ROUTE]: ALL_ROLES,
   [MINT_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR],
+  [NEW_ADHOC_TRANSFER_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR],
+  [ADHOC_TRANSFER_ROUTE]: [DRIVER, INVESTOR, PARTNER_INVESTOR],
 };
 
 /**
