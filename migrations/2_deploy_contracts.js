@@ -7,5 +7,5 @@ module.exports = function (deployer, network, accounts) {
     deployer.deploy(DGT, 10000000, accounts);
     deployer.deploy(Accounts, accounts);
     deployer.deploy(Ideas);
-    deployer.deploy(Pool);
+    deployer.deploy(Pool, accounts[0]);
 };

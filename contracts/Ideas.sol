@@ -3,8 +3,11 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./Accounts.sol";
 import "./DGT.sol";
 import "./Pool.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Ideas {
+    using SafeMath for uint256;
+
     struct Idea {
         uint256 id;
         address owner;
@@ -62,7 +65,7 @@ contract Ideas {
     {
         bool canAppOrRej = false;
         if (numVotes <= token.balanceOf(msg.sender)) {
-            ideas[id].voteCount += numVotes;
+            ideas[id].voteCount = ideas[id].voteCount.add(numVotes);
             canAppOrRej = checkvoteCountToSeeIfCanApproveRejectIdea(id);
             //ideas[id].voters.add(msg.sender); //only used if we are going to track list of voters. Need to add var address[] voter
             // after poolContract is done: return token.transfer(poolrecipient, numVotes); + add in poolcontract address as input
