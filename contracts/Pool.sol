@@ -104,7 +104,7 @@ contract Pool {
     }
 
     modifier adhocTransferExists(uint256 _id) {
-        require(_id <= adhocTransfers.length, "AdhocTransfer does not exists.");
+        require(_id < adhocTransfers.length, "AdhocTransfer does not exists.");
         _;
     }
 
@@ -180,7 +180,7 @@ contract Pool {
                 // council member found
                 // Use the same swap-deletion logic since order does not matter
                 approve[index] = approve[approve.length - 1];
-                delete approve[index];
+                delete approve[approve.length - 1];
             }
         }
     }
