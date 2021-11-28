@@ -13,9 +13,10 @@ Acentrik is a B2B Decentralized Data Marketplace for enabling cross industry dat
 -	Development team develops the features (or improvements) approved by the council
 
 Based on the requirements, the main functionality and the corresponding permissions are as follow:
-1. Propose and vote for ideas
-2. Initiate minting of new governance tokens, and multi-sig for the approval of mint
-3. Initiate adhoc transfer of tokens to any valid address, and multi-sig approval for this
+1. Propose and approve new Ideas
+2. Initiate adhoc transfer of tokens to any valid address, and multi-sig approval for this
+3. **[BONUS]** User Interface
+4. **[BONUS]** Initiate minting of new governance tokens, and multi-sig for the approval of mint
 
 Role|Propose/Vote for Idea|Initiate Mint| Multi-sig approval for Mint| Initiate/Multi-sig approval for Adhoc Transfer
 ---|---|---|---|---
