@@ -44,7 +44,6 @@ export default function AdhocTransferCard({
   const contractStore = ContractStore.useStore();
 
   const hasVoted = adhocTransfer[ADHOC_TRANSFER_USER_HAS_VOTED];
-  console.log(adhocTransfer);
 
   const HandleApproveClick = () => {
     // TODO: Add exception handlers

@@ -217,6 +217,7 @@ contract Pool {
                 isActive: true
             })
         );
+        approveAdhocTransfer(adhocTransfers.length - 1);
     }
 
     // Approves adhoc transfer
@@ -311,6 +312,7 @@ contract Pool {
     function requestMint(uint256 _amount) public isDriver noActiveMint {
         minting = true;
         mintingAmount = _amount;
+        approveMint(msg.sender);
     }
 
     function approveMint(address _addr) public isCouncil {

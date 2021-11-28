@@ -54,6 +54,9 @@ export default function NewAdhocTransfer() {
     TryCreateNewAdhocTransfers(accountStore, contractStore, address, amount)
       .then(() => {
         setHasSuccessfullySubmitted(true);
+        // reset address and amount
+        setAddress("");
+        setAmount(0);
       })
       .catch((e) => console.log(e)); // TODO: Add error handlers
   };
@@ -68,18 +71,15 @@ export default function NewAdhocTransfer() {
         onClose={() => {
           setHasSuccessfullySubmitted(false);
 
-          // reset address and amount
-          setAddress("");
-          setAmount(0);
         }}
       >
         <DialogTitle>Successfully submitted a new transfer request!</DialogTitle>
-        <DialogContent>
+        {/*<DialogContent>
           <DialogContentText>{"Address: " + address}</DialogContentText>
         </DialogContent>
         <DialogContent>
           <DialogContentText>{"Amount: " + amount}</DialogContentText>
-        </DialogContent>
+        </DialogContent>*/}
       </Dialog>
       <Box className={classes.formContainer}>
         <Box

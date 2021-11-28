@@ -78,12 +78,14 @@ export default function NewIdea() {
         }}
       >
         <DialogTitle>Successfully submitted a new idea!</DialogTitle>
+        {/*
         <DialogContent>
           <DialogContentText>{"Title: " + title}</DialogContentText>
         </DialogContent>
         <DialogContent>
           <DialogContentText>{"Description: " + content}</DialogContentText>
         </DialogContent>
+        */}
       </Dialog>
       <Box className={classes.formContainer}>
         <Box
