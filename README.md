@@ -21,7 +21,7 @@ Role|Propose/Vote for Idea|Initiate Mint| Multi-sig approval for Mint| Initiate/
 ---|---|---|---|---
 Driver|✔|✔|✔|✔
 Partner|✔|❌|✔|✔
-Partner-Investor|✔|❌|❌|❌
+Partner-Investor|✔|❌|✔|✔
 Investor|✔|❌|❌|❌
 User|✔|❌|❌|❌
 
